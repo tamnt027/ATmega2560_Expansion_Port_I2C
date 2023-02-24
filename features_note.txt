@@ -1,0 +1,2 @@
+
+1. Auto reset when device does not receive command from master for a period of time.

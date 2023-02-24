@@ -1,0 +1,29 @@
+ATMEGA2560 Pins:
+PWM pins for analog output 9 pins total:
+
+	D4; D5; D6; D7; D8; D9; D10; D11; D12.
+
+ADDRESS pins for address 4pins in total:
+	
+	D30; D31; D32; D33
+
+Analog Input Pins 9pins total:
+
+	A0; A1; A2; A3; A4; A5; A6; A7
+
+Digital Output 26pins + 9pins(PWM) + 9pins(Analog) = 44pins total:
+
+	D22; D23; D24; D25; D26;D27; D28; D29; D39
+	D34; D35; D36; D37; D40; D41; D38; D42; D43
+	D44(pwm); D45(pwm); D46(pwm); D47; D48; D49; D3(pwm) ; D2(pwm)
+	
+	A8; A9; A10; A11; A12; A13; A14; A15; D50(miso); D51(mosi); D52(SCK); D53(SS)
+
+	(*)D4; D5; D6; D7; D8; D9; D10; D11; D12
+	(*)A0; A1; A2; A3; A4; A5; A6; A7
+
+**************************************
+ESP32 PINS: Lolin D32
+
+Interrupt pins for flow sensors 12pins:
+	4; 13; 16; 17; 18; 19; 23; 25; 26; 27; 32; 33

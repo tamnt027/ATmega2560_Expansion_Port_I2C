@@ -1,0 +1,80 @@
+I2C Protocol between this board (slave) and raspberry pi (master/client).
+
+Target: Create a simple, light, flexible protocol 
+
+1. Master queries:
+
+    ### Flows  (Group 000)
+
+    0. Enable a certain flow pin  (command item 0000) 1 000 0000
+        B10000000 PIN_NO           <----
+        ---> RESPONSE_OK  / RESPONSE_FAIL
+
+    1. Disable a certain flow pin (command item 0001)  1 000 0001
+        B10000001 PIN_NO           <----
+        ---> RESPONSE_OK  / RESPONSE_FAIL
+
+    2. Get flow pin value (command item 0010) 1 000 0010
+        ---> RESPONSE_OK  / RESPONSE_FAIL  + 4 bytes of float
+
+    3. Check flow pin status working or not (command item 0011)
+        ---> RESPONSE_OK  / RESPONSE_FAIL  + 1 byte of status
+
+    4. Disable all supported flow pin (command item 0100)
+        ---> RESPONSE_OK  / RESPONSE_FAIL
+
+    5. Enable all supported flow pin
+        ---> RESPONSE_OK  / RESPONSE_FAIL
+
+    6. Get all flow pin value.
+        ---> RESPONSE_OK  / RESPONSE_FAIL + 12 * 4 bytes  of data
+
+    
+    ### PWM  (Group 001)
+    0. set value for pwm pin
+
+    1. get current value of pwm pin
+
+
+    ### Analog input pin  (Group 010)
+    0. Get value from a analog pin
+
+    ### Digital output pin  (Group 011)
+    0. Set output for a pin
+    1. Get status of output for a pin
+    2. Set all outputs to high
+    3. Set all outputs to low
+
+    ### Devices queries  (Group 100)
+    0. Command for reset device
+    1. Get alive time from last reset 
+    2. Command for acknowledgment that controller know that device just reset.
+
+
+
+3. Message request format:
+    COMMAND_CODE CALLER_ADDRESS  [DATA]
+
+    * COMMAND_CODE :
+        - 1 byte length (8 bit)  0 000 0000
+        - first 1 bit : signature, should alway be 1
+        - next 3 bits : COMMAND GROUP : 
+            000 : FLOW GROUP
+            001 : PWM.
+            010 : Analog input pin
+            011 : Digital output pin
+            100 : Devices queries
+            Other xxx : Reserves only
+        - remain 4 bits: COMMAND item no. Item no depend on each command group. Each group contain max 16 command items.
+
+
+4. Message response format
+    RESPONSE_CODE [DATA_LENGHT] [DATA]
+
+    * RESPONSE_CODE :
+            200: RESPONSE_OK
+            100: RESPONSE_FAIL
+            101: UNKNOW_COMMAND
+            102: REQUIRED_ACK     #In case MCU just reset or startup. Controller device must send acknowledgment command first. Before other command.
+
+
