@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "pins_define.h"
 
+#if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
+
 extern uint16_t pulseCount1, pulseCount2, pulseCount3, pulseCount4, pulseCount5, pulseCount6;
 extern uint16_t pulseCount7, pulseCount8, pulseCount9, pulseCount10, pulseCount11, pulseCount12;
 
@@ -633,10 +635,11 @@ void handle_enable_all_flow(){
         isResponseReady = true;
         return;
     }
-    enable_all_flow_interupts();
+    
     sendingBuffer[0] = RESPONSE_OK;
     sendingLength = 1;
     isResponseReady = true;
+    enable_all_flow_interupts();
 
 }
 
@@ -731,7 +734,7 @@ void get_all_pin_values(){
 
 }
 
-void handleFlowCommand(char command_code){
+void handleFlowCommand(unsigned char command_code){
     switch (command_code)
     {
     case CM_FLOW_ENABLE_PIN:
@@ -1266,3 +1269,5 @@ void disable_all_flow_interupt(){
   }
 
 }
+
+#endif

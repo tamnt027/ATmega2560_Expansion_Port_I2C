@@ -29,11 +29,15 @@ unsigned long oldTime7, oldTime8, oldTime9, oldTime10, oldTime11, oldTime12;
 
 unsigned long latestIncomingCommandTime;
 
+byte pwmValue1, pwmValue2, pwmValue3, pwmValue4, pwmValue5, pwmValue6, pwmValue7, pwmValue8, pwmValue9;
+
 int addressI2C;
 
 // This flag indicate that device need a acknowledment from master to operate properly (aka handshakes)
 bool isRequiredAck;
 
+bool isPlaningReset;
+unsigned long planingResetTime;
 // 
 unsigned char receivingBuffer[128];
 unsigned char sendingBuffer[128];
@@ -77,9 +81,6 @@ void reset_all_flow_rate(){
 }
 
 
-void handlePWMCommand(char command_code){
-
-}
 
 void handleAnalogInput(char command_code){
 
@@ -98,6 +99,7 @@ void receiveEvent(int howMany)
   latestIncomingCommandTime = millis();  // record latest incomming command time
   receivingLength = 0;
 
+  #if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
   if (WireSlave.available()){
 
     while (WireSlave.available())
@@ -105,12 +107,22 @@ void receiveEvent(int howMany)
       receivingBuffer[receivingLength] = WireSlave.read();
       receivingLength++;
     }
+  #elif (ACTIVE_BOARD == BOARD_ATMEGA2560)
+  if (Wire.available()){
+
+    while (Wire.available())
+    {
+      receivingBuffer[receivingLength] = Wire.read();
+      receivingLength++;
+    }
+  #endif 
+
     receivingBuffer[receivingLength] = '\0';
 
     isResponseReady = false; // 
 
-    char command_code = receivingBuffer[0];
-    char command_group = command_code & B11110000;
+    unsigned char command_code = receivingBuffer[0];
+    unsigned char command_group = command_code & B11110000;
     #ifdef SERIAL_DEBUG
         // Initialize a serial connection for reporting values to the host
         Serial.print("Received command ");
@@ -133,18 +145,24 @@ void receiveEvent(int howMany)
 
     switch (command_group)
     {
+  #if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
     case B10000000:  // Flow Group
       handleFlowCommand(command_code);
       break;
+  #endif
+
+#if (ACTIVE_BOARD == BOARD_ATMEGA2560)
     case B10010000:  // PWM Group
       handlePWMCommand(command_code);
       break;
+#endif  
     case B10100000:  // Analog Input Group
       handleAnalogInput(command_code);
       break;
     case B10110000:  // Digital Output Group
       handleDigitalOutput(command_code);
       break;
+
     case B11000000:  // Device queries Group
       handleDeviceQuery(command_code);
       break;
@@ -161,6 +179,7 @@ void receiveEvent(int howMany)
 }
 
 void sendEvent(){
+  #if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
     if (isResponseReady) {
         WireSlave.write(sendingBuffer, sendingLength);
 
@@ -168,6 +187,15 @@ void sendEvent(){
         uint8_t data_uncompleted_command = RESPONSE_DATA_UNCOMPLETED;
         WireSlave.write(data_uncompleted_command);
     }
+  #elif (ACTIVE_BOARD == BOARD_ATMEGA2560)
+    if (isResponseReady) {
+        Wire.write(sendingBuffer, sendingLength);
+
+    }else{
+        uint8_t data_uncompleted_command = RESPONSE_DATA_UNCOMPLETED;
+        Wire.write(data_uncompleted_command);
+    }
+  #endif
 
 }
 
@@ -182,6 +210,8 @@ void setup()
   addressI2C = getI2CAddress();
 
   isRequiredAck = true;
+
+  isPlaningReset = false;
 
 #if (ACTIVE_BOARD == BOARD_ATMEGA2560)
   Wire.begin(addressI2C);
@@ -215,6 +245,7 @@ void setup()
   enable_all_flow_interupts();
 #endif
 
+  setPWMPinMode();
   // Set up the status LED line as an output
   pinMode(PIN_LED_OPERATE, OUTPUT);
 
@@ -226,26 +257,28 @@ void setup()
  */
 void loop()
 {
+
 #if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
   WireSlave.update();
   delay(1);
 #endif
 
   safety_idle_time_reach_limit();
+  safety_planning_reset();
 
 #if (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
   update_flow_1();
   update_flow_2();
-  // update_flow_3();
+  update_flow_3();
   update_flow_4();
-  // update_flow_5();
-  // update_flow_6();
-  // update_flow_7();
-  // update_flow_8();
-  // update_flow_9();
-  // update_flow_10();
-  // update_flow_11();
-  // update_flow_12();
+  update_flow_5();
+  update_flow_6();
+  update_flow_7();
+  update_flow_8();
+  update_flow_9();
+  update_flow_10();
+  update_flow_11();
+  update_flow_12();
 
 #endif
    

@@ -5,6 +5,16 @@
 
 extern bool isRequiredAck;
 
+
+extern unsigned char receivingBuffer[128];
+extern unsigned char sendingBuffer[128];
+
+extern byte receivingLength;
+extern byte sendingLength;
+
+extern bool isResponseReady;
+
+
 void handleDeviceQuery(char command_code){
 
   switch (command_code)
@@ -23,6 +33,9 @@ void handleDeviceQuery(char command_code){
 #endif
 
     isRequiredAck = false;
+    sendingBuffer[0] = RESPONSE_OK;
+    sendingLength = 1;
+    isResponseReady = true;
     break;   
   default:
     break;
@@ -31,11 +44,26 @@ void handleDeviceQuery(char command_code){
 
 void(* resetFunc) (void) = 0;  // declare reset fuction at address 0
 
+extern bool isPlaningReset;
+extern unsigned long planingResetTime;
+
 void reset_device() {
-    resetFunc();
+    isPlaningReset = true;
+    planingResetTime = millis() + 1000;
+    sendingBuffer[0] = RESPONSE_OK;
+    sendingLength = 1;
+    isResponseReady = true;
+   
 }
 
 void get_device_alive_time(){
     unsigned long alive_time = millis();
-    
+    unsigned char const * p = reinterpret_cast<unsigned char const *>(&alive_time);
+    sendingBuffer[0] = RESPONSE_OK;
+    for (int i = 0; i != sizeof(unsigned long); ++i)
+    {
+        sendingBuffer[1 + i] = p[i];
+    }
+    sendingLength = 1 + sizeof(unsigned long);
+    isResponseReady = true;
 }

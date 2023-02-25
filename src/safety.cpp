@@ -26,3 +26,13 @@ void safety_idle_time_reach_limit(){
         hard_reset_device();
     }
 }
+
+
+extern bool isPlaningReset;
+extern unsigned long planingResetTime;
+
+void safety_planning_reset(){   // planing reset from master.
+    if (isPlaningReset && millis() > planingResetTime){
+        hard_reset_device();
+    }
+}

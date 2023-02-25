@@ -5,5 +5,6 @@
 // device will be reset for safety.
 
 void safety_idle_time_reach_limit();
+void safety_planning_reset();
 
 #endif
