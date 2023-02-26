@@ -6,7 +6,7 @@
 #include "handle_device_query_command.h"
 #include "handle_flow_command.h"
 #include "handle_pwm_command.h"
-#include "handle_digital_output_command.h"
+#include "handle_digital_io_command.h"
 #include "ultility.h"
 #include <WireSlave.h>
 #include "safety.h"
@@ -47,6 +47,8 @@ byte sendingLength;
 
 bool isResponseReady;
 
+uint32_t digitalPinModeBits;  // Bit 0, output , 1 input
+uint32_t digitalPinValueBits; // Bit 0 low, Bit 1 high
 
 
 
@@ -80,15 +82,6 @@ void reset_all_flow_rate(){
   flowRate12 = 0;
 }
 
-
-
-void handleAnalogInput(char command_code){
-
-}
-
-void handleDigitalOutput(char command_code){
-
-}
 
 
 
@@ -156,11 +149,14 @@ void receiveEvent(int howMany)
       handlePWMCommand(command_code);
       break;
 #endif  
+
+#if (ACTIVE_BOARD == BOARD_ATMEGA2560)
     case B10100000:  // Analog Input Group
-      handleAnalogInput(command_code);
+      handleAnalogInputCommand(command_code);
       break;
+#endif
     case B10110000:  // Digital Output Group
-      handleDigitalOutput(command_code);
+      handleDigitalIOCommand(command_code);
       break;
 
     case B11000000:  // Device queries Group
@@ -246,6 +242,10 @@ void setup()
 #endif
 
   setPWMPinMode();
+#if (ACTIVE_BOARD == BOARD_ATMEGA2560)
+  setAnalogInputPinmode();
+#endif
+  setInitialDigitalPinMode();
   // Set up the status LED line as an output
   pinMode(PIN_LED_OPERATE, OUTPUT);
 

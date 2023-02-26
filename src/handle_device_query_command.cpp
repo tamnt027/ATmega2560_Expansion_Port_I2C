@@ -15,7 +15,7 @@ extern byte sendingLength;
 extern bool isResponseReady;
 
 
-void handleDeviceQuery(char command_code){
+void handleDeviceQuery(unsigned char command_code){
 
   switch (command_code)
   {

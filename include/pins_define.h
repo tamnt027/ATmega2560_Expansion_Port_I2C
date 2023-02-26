@@ -149,18 +149,22 @@
 #define PIN_DIGITAL_24 PIN_D49
 #define PIN_DIGITAL_25 PIN_D3
 
-
+#define PIN_DIGITAL_NUM 25
 #elif (ACTIVE_BOARD == BOARD_ESP32_DEVKIT_V1)
 #define LED_BUILTIN 5
 #define PIN_LED_OPERATE 2  
 
 #define SDA_PIN 21
 #define SCL_PIN 22
+
+#define PIN_DIGITAL_NUM 0
 #endif
 
 
 #define PIN_HARD_RESET PIN_D13
 
 #define FLOW_INTERUPT_CHANGE_TYPE FALLING
+
+
 
 #endif

@@ -22,7 +22,7 @@ void safety_idle_time_reach_limit(){
 
 #endif
 
-    if (idleTime >  (MAX_IDLE_TIME_IN_SEC * 1000)) {   // If reach the limit, then reset device
+    if ((idleTime / 1000) >  MAX_IDLE_TIME_IN_SEC) {   // If reach the limit, then reset device
         hard_reset_device();
     }
 }

@@ -12,6 +12,8 @@ extern bool isResponseReady;
 
 extern byte pwmValue1, pwmValue2, pwmValue3, pwmValue4, pwmValue5, pwmValue6, pwmValue7, pwmValue8, pwmValue9;
 
+#if (ACTIVE_BOARD == BOARD_ATMEGA2560)
+
 void handlePWMCommand(unsigned char command_code){
     switch (command_code)
     {
@@ -28,7 +30,6 @@ void handlePWMCommand(unsigned char command_code){
         get_all_pwm_values();
         break;
 
-    
     default:
         sendingBuffer[0] = RESPONSE_UNKNOW_CM;
         sendingLength = 1;
@@ -173,6 +174,8 @@ void get_pwm_value(){
         return;
     }
 }
+
+#endif
 
 void setPWMPinMode(){
 
